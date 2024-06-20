@@ -1,8 +1,20 @@
+abstract class LibraryItem {
+    readonly id: number;
+    readonly title: string;
+
+    protected constructor(id: number, title: string) {
+        this.id = id
+        this.title = title
+    }
+
+    abstract display(): void;
+}
+
 class User {
-    readonly name: string;
+    private name: string;
     private email: string;
 
-    public constructor(name: string, email: string) {
+    private constructor(name: string, email: string) {
         this.name = name;
         this.email = email;
     }
@@ -14,17 +26,32 @@ class User {
     public manageLibrary(): void {
         console.log(`${this.name} managing the library...`)
     }
+
+    // Getters
+    public getName(): string {
+        return this.name;
+    }
+
+    public getEmail(): string {
+        return this.email;
+    }
+
+    //Setters
+    public setName(name: string): void {
+        this.name = name;
+    }
+
+    public setEmail(email: string): void {
+        this.email = email;
+    }
 }
 
-class Book {
-    readonly id: number;
-    readonly title: string;
+class Book extends LibraryItem {
     readonly author: string;
     readonly ISBN: string;
 
     constructor(id: number, title: string, author: string, ISBN: string) {
-        this.id = id;
-        this.title = title;
+        super(id, title);
         this.author = author;
         this.ISBN = ISBN;
     }
@@ -35,29 +62,50 @@ class Book {
 
 }
 
-class LibraryCatalogue {
-    private libraryItems: Book[] = [];
+class AudioBook extends LibraryItem {
+    readonly narrator: string;
+    readonly length: number;
 
-    addItems(item: Book): void {
-        this.libraryItems.push(item)
-        console.log(`${item.title} by ${item.author} is added!`)
+    public constructor(id: number, title: string, narrator: string, length: number) {
+        super(id, title);
+        this.length = length;
+        this.narrator = narrator;
     }
 
-    displayItems(): void {
-        this.libraryItems.forEach(item => item.display())
+    public display(): void {
+        console.log(`AudioBook Id: ${this.id}, Title: ${this.title}, Narrator: ${this.narrator}, Length: ${this.length} minutes`);
     }
 }
 
-const book1 = new Book(1,
-    "Clean Code: A Handbook of Agile Software Craftsmanship",
-    "Robert C. Martin",
-    "978-0-13-235088-4")
-const book2 = new Book(31,
-    "You Don't Know JS: ES6 & Beyond",
-    "Kyle Simpson",
-    "978-1-4919-4852-9")
-const catalogue = new LibraryCatalogue()
+class LibraryCatalogue {
+    private libraryItems: LibraryItem[] = [];
+    private static instance: LibraryCatalogue;
+
+    public static getInstance(): LibraryCatalogue {
+        if (!LibraryCatalogue.instance) {
+            LibraryCatalogue.instance = new LibraryCatalogue();
+        }
+        return LibraryCatalogue.instance;
+    }
+
+    public addItems(item: LibraryItem): void {
+        this.libraryItems.push(item);
+        console.log(`${item.title} is added!`);
+    }
+
+    displayItems(): void {
+        this.libraryItems.forEach(item => item.display());
+    }
+}
+
+const book1 = new Book(1, "Clean Code", "Robert C. Martin", "978-0132350884");
+const book2 = new Book(2, "You Don't Know JS: ES6 & Beyond", "Kyle Simpson", "978-1491948529");
+const audioBook1 = new AudioBook(3, "The Pragmatic Programmer", "Andy Hunt", 480);
+
+const catalogue = LibraryCatalogue.getInstance();
 
 catalogue.addItems(book1)
-catalogue.addItems(book2)
-catalogue.displayItems()
+catalogue.addItems(book2);
+catalogue.addItems(audioBook1);
+
+catalogue.displayItems();
